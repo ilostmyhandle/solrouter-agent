@@ -5,15 +5,23 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node src/index.js",
+    "web": "node src/server.js"
   },
-  "keywords": ["solana", "defi", "liquidation", "solrouter", "encrypted-ai"],
+  "keywords": [
+    "solana",
+    "defi",
+    "liquidation",
+    "solrouter",
+    "encrypted-ai"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@solrouter/sdk": "latest",
     "axios": "^1.6.0",
     "chalk": "^5.3.0",
-    "dotenv": "^16.0.0"
+    "dotenv": "^16.0.0",
+    "express": "^5.2.1"
   }
 }
