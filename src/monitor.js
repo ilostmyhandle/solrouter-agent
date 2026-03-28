@@ -5,7 +5,6 @@ const KAMINO_BASE = "https://api.kamino.finance";
 
 export async function fetchKaminoRisk() {
   try {
-    // Fetch recent liquidations from Kamino main market
     const { data } = await axios.get(
       `${KAMINO_BASE}/lending-markets/${KAMINO_MAIN_MARKET}/loans?status=risky&limit=20`
     );
@@ -26,14 +25,14 @@ export async function fetchKaminoRisk() {
 
 export async function fetchMarketMetrics() {
   try {
-    // Fetch Kamino market-level metrics
     const { data } = await axios.get(
-      `${KAMINO_BASE}/lending-markets/${KAMINO_MAIN_MARKET}/metrics`
+      "https://api.llama.fi/protocol/kamino-lend"
     );
+    const tvl = data.currentChainTvls?.Solana ?? data.tvl ?? "N/A";
     return {
-      tvl: data.metrics?.tvl ?? data.tvl ?? "N/A",
-      totalObligations: data.metrics?.obligations ?? "N/A",
-      timestamp: data.timestamp ?? new Date().toISOString(),
+      tvl: typeof tvl === "number" ? tvl.toFixed(0) : tvl,
+      totalObligations: "N/A",
+      timestamp: new Date().toISOString(),
     };
   } catch (err) {
     console.error("Kamino metrics fetch failed:", err.message);
@@ -44,13 +43,13 @@ export async function fetchMarketMetrics() {
 export async function fetchSOLPrice() {
   try {
     const { data } = await axios.get(
-      "https://api.dexscreener.com/tokens/v1/solana/So11111111111111111111111111111111111111112"
+      "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=solana"
     );
-    const pair = data.pairs?.[0];
+    const sol = data[0];
     return {
-      price: pair?.priceUsd ?? "N/A",
-      priceChange24h: pair?.priceChange?.h24 ?? "N/A",
-      volume24h: pair?.volume?.h24 ?? "N/A",
+      price: sol.current_price?.toString() ?? "N/A",
+      priceChange24h: sol.price_change_percentage_24h?.toFixed(2) ?? "N/A",
+      volume24h: sol.total_volume?.toString() ?? "N/A",
     };
   } catch (err) {
     console.error("SOL price fetch failed:", err.message);
