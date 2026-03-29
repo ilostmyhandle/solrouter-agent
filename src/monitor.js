@@ -1,21 +1,44 @@
 import axios from "axios";
 
 const KAMINO_MAIN_MARKET = "7u3HeHxYDLhnCoErrtycNokbQYbWGzLs6JSDqGAv5PfF";
-const KAMINO_BASE = "https://api.kamino.finance";
+
+export async function fetchWalletPositions(walletAddress) {
+  try {
+    const { data } = await axios.get(
+      `https://api.kamino.finance/v2/users/${walletAddress}/obligations?env=mainnet-beta`
+    );
+    const items = Array.isArray(data) ? data : data.obligations ?? [];
+    if (items.length === 0) return null;
+
+    return items.map(o => ({
+      protocol: "Kamino",
+      wallet: walletAddress,
+      ltv: o.loanToValue ?? o.ltv ?? "N/A",
+      borrowed: o.totalBorrowedAmountUsd ?? o.borrowedAmountUsd ?? "N/A",
+      collateral: o.totalCollateralAmountUsd ?? o.depositedAmountUsd ?? "N/A",
+      healthFactor: o.healthFactor ?? "N/A",
+      liquidationThreshold: o.liquidationLtv ?? o.liquidationThreshold ?? "N/A",
+      token: o.collateralToken ?? "SOL",
+    }));
+  } catch (err) {
+    console.error("Wallet position fetch failed:", err.message);
+    return null;
+  }
+}
 
 export async function fetchKaminoRisk() {
   try {
     const { data } = await axios.get(
-      `${KAMINO_BASE}/lending-markets/${KAMINO_MAIN_MARKET}/loans?status=risky&limit=20`
+      `https://api.kamino.finance/v2/lending-markets/${KAMINO_MAIN_MARKET}/reserves/metrics?env=mainnet-beta`
     );
-    const items = Array.isArray(data) ? data : data.liquidations ?? [];
-    return items.slice(0, 10).map(p => ({
+    const items = Array.isArray(data) ? data : [];
+    return items.slice(0, 10).map(r => ({
       protocol: "Kamino",
-      wallet: p.wallet ?? p.obligationAccount ?? p.borrower ?? "unknown",
-      ltv: p.loanToValue ?? p.ltv ?? "N/A",
-      borrowed: p.totalBorrowedAmountUsd ?? p.debtValue ?? "N/A",
-      collateral: p.totalCollateralAmountUsd ?? p.collateralValue ?? "N/A",
-      token: p.liquidityToken ?? p.collateralToken ?? "SOL",
+      wallet: "market",
+      ltv: r.maxLtv ?? "N/A",
+      borrowed: r.totalBorrowUsd ?? "N/A",
+      collateral: r.totalSupplyUsd ?? "N/A",
+      token: r.liquidityToken ?? "N/A",
     }));
   } catch (err) {
     console.error("Kamino fetch failed:", err.message);
@@ -53,30 +76,6 @@ export async function fetchSOLPrice() {
     };
   } catch (err) {
     console.error("SOL price fetch failed:", err.message);
-    return null;
-  }
-}
-
-export async function fetchWalletPositions(walletAddress) {
-  try {
-    const { data } = await axios.get(
-      `${KAMINO_BASE}/lending-markets/${KAMINO_MAIN_MARKET}/loans?wallet=${walletAddress}&status=all`
-    );
-    const items = Array.isArray(data) ? data : data.loans ?? data.obligations ?? [];
-    if (items.length === 0) return null;
-
-    return items.map(p => ({
-      protocol: "Kamino",
-      wallet: walletAddress,
-      ltv: p.loanToValue ?? p.ltv ?? "N/A",
-      borrowed: p.totalBorrowedAmountUsd ?? p.debtValue ?? "N/A",
-      collateral: p.totalCollateralAmountUsd ?? p.collateralValue ?? "N/A",
-      token: p.liquidityToken ?? p.collateralToken ?? "SOL",
-      healthFactor: p.healthFactor ?? p.health ?? "N/A",
-      liquidationThreshold: p.liquidationThreshold ?? "N/A",
-    }));
-  } catch (err) {
-    console.error("Wallet position fetch failed:", err.message);
     return null;
   }
 }
