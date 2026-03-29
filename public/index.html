@@ -30,7 +30,6 @@
       overflow-x: hidden;
     }
 
-    /* grid bg */
     body::before {
       content: '';
       position: fixed;
@@ -52,7 +51,6 @@
       z-index: 1;
     }
 
-    /* HEADER */
     header {
       display: flex;
       align-items: flex-start;
@@ -71,9 +69,7 @@
       line-height: 1;
     }
 
-    .logo-block h1 span {
-      color: var(--accent);
-    }
+    .logo-block h1 span { color: var(--accent); }
 
     .logo-block p {
       font-size: 0.72rem;
@@ -111,7 +107,6 @@
       50% { opacity: 0.3; }
     }
 
-    /* STATS ROW */
     .stats-row {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -162,7 +157,6 @@
       margin-top: 4px;
     }
 
-    /* RISK METER */
     .risk-card {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -183,7 +177,6 @@
     .risk-card.medium::after { background: var(--warn); }
     .risk-card.high::after { background: var(--danger); }
 
-    /* RUN BUTTON */
     .run-btn {
       width: 100%;
       padding: 18px;
@@ -229,11 +222,101 @@
       vertical-align: middle;
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* WALLET SECTION */
+    .section-divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 40px 0 24px;
     }
 
-    /* ANALYSIS PANEL */
+    .section-divider span {
+      font-size: 0.65rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      white-space: nowrap;
+    }
+
+    .section-divider::before,
+    .section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .wallet-input-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .wallet-input {
+      flex: 1;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      padding: 14px 16px;
+      border-radius: 6px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .wallet-input:focus {
+      border-color: var(--accent2);
+    }
+
+    .wallet-input::placeholder {
+      color: var(--muted);
+    }
+
+    .wallet-btn {
+      padding: 14px 24px;
+      background: var(--accent2);
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .wallet-btn:hover {
+      background: #38bdf8;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 32px rgba(14, 165, 233, 0.25);
+    }
+
+    .wallet-btn:disabled {
+      background: var(--border);
+      color: var(--muted);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .wallet-btn .spinner {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid #000;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
     .analysis-panel {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -288,13 +371,11 @@
       letter-spacing: 0.06em;
     }
 
-    /* markdown-like formatting */
     .panel-body strong { color: #fff; }
     .panel-body .risk-high { color: var(--danger); font-weight: 700; }
     .panel-body .risk-med { color: var(--warn); font-weight: 700; }
     .panel-body .risk-low { color: var(--accent); font-weight: 700; }
 
-    /* FOOTER */
     footer {
       margin-top: 48px;
       padding-top: 24px;
@@ -312,12 +393,8 @@
       letter-spacing: 0.06em;
     }
 
-    footer a {
-      color: var(--accent2);
-      text-decoration: none;
-    }
+    footer a { color: var(--accent2); text-decoration: none; }
 
-    /* TIMESTAMP */
     .timestamp {
       font-size: 0.65rem;
       color: var(--muted);
@@ -325,7 +402,6 @@
       margin-top: 8px;
     }
 
-    /* TABLE STYLES */
     table {
       width: 100%;
       border-collapse: collapse;
@@ -359,6 +435,17 @@
       border: 1px solid rgba(255, 68, 102, 0.2);
       border-radius: 4px;
       margin-top: 16px;
+    }
+
+    .wallet-tag {
+      font-size: 0.65rem;
+      color: var(--accent2);
+      background: rgba(14, 165, 233, 0.08);
+      border: 1px solid rgba(14, 165, 233, 0.2);
+      padding: 4px 10px;
+      border-radius: 3px;
+      letter-spacing: 0.06em;
+      font-family: var(--font-mono);
     }
   </style>
 </head>
@@ -411,6 +498,36 @@
 
     <div class="timestamp" id="timestamp"></div>
 
+    <!-- WALLET SECTION -->
+    <div class="section-divider">
+      <span>Wallet Risk Scanner</span>
+    </div>
+
+    <div class="wallet-input-row">
+      <input
+        class="wallet-input"
+        id="walletInput"
+        type="text"
+        placeholder="Enter your Solana wallet address..."
+        maxlength="44"
+      />
+      <button class="wallet-btn" id="walletBtn" onclick="runWalletAnalysis()">
+        Scan Wallet
+      </button>
+    </div>
+
+    <div class="analysis-panel" id="walletPanel" style="display:none;">
+      <div class="panel-header">
+        <span class="panel-title">Wallet Risk Analysis — Encrypted</span>
+        <span class="wallet-tag" id="walletTag">—</span>
+      </div>
+      <div class="panel-body empty" id="walletBody">
+        Scanning wallet positions...
+      </div>
+    </div>
+
+    <div class="timestamp" id="walletTimestamp"></div>
+
     <footer>
       <p>Built for <a href="https://earn.superteam.fun" target="_blank">Superteam Earn</a> — SolRouter Bounty</p>
       <p>Prompts encrypted client-side. Backend sees nothing.</p>
@@ -433,7 +550,6 @@
 
         if (!data.success) throw new Error(data.error);
 
-        // Update stats
         if (data.solPrice) {
           const price = data.solPrice.price;
           const change = data.solPrice.priceChange24h;
@@ -451,7 +567,6 @@
           document.getElementById('kaminoObl').textContent = data.metrics.totalObligations !== 'N/A' ? `${data.metrics.totalObligations} obligations` : 'N/A';
         }
 
-        // Detect risk level from analysis text
         const analysisText = data.analysis || '';
         const riskEl = document.getElementById('riskLevel');
         const riskCard = document.getElementById('riskCard');
@@ -469,12 +584,10 @@
           riskCard.className = 'risk-card low';
         }
 
-        // Display analysis
         body.className = 'panel-body';
         body.textContent = '';
         typeText(body, analysisText);
 
-        // Timestamp
         document.getElementById('timestamp').textContent =
           `Last updated: ${new Date(data.timestamp).toLocaleTimeString()}`;
 
@@ -484,6 +597,47 @@
       } finally {
         btn.disabled = false;
         btn.innerHTML = 'Run Encrypted Analysis';
+      }
+    }
+
+    async function runWalletAnalysis() {
+      const walletAddress = document.getElementById('walletInput').value.trim();
+      if (!walletAddress || walletAddress.length < 32) {
+        alert('Please enter a valid Solana wallet address.');
+        return;
+      }
+
+      const btn = document.getElementById('walletBtn');
+      const panel = document.getElementById('walletPanel');
+      const body = document.getElementById('walletBody');
+      const tag = document.getElementById('walletTag');
+
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span> Scanning...';
+      panel.style.display = 'block';
+      body.className = 'panel-body empty';
+      body.textContent = 'Fetching positions from Kamino...';
+      tag.textContent = `${walletAddress.slice(0, 4)}...${walletAddress.slice(-4)}`;
+
+      try {
+        const res = await fetch(`/api/wallet/${walletAddress}`);
+        const data = await res.json();
+
+        if (!data.success) throw new Error(data.error);
+
+        body.className = 'panel-body';
+        body.textContent = '';
+        typeText(body, data.analysis);
+
+        document.getElementById('walletTimestamp').textContent =
+          `Wallet scanned: ${new Date(data.timestamp).toLocaleTimeString()}`;
+
+      } catch (err) {
+        body.className = 'panel-body';
+        body.innerHTML = `<div class="error-msg">Error: ${err.message}</div>`;
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'Scan Wallet';
       }
     }
 

@@ -56,3 +56,27 @@ export async function fetchSOLPrice() {
     return null;
   }
 }
+
+export async function fetchWalletPositions(walletAddress) {
+  try {
+    const { data } = await axios.get(
+      `${KAMINO_BASE}/lending-markets/${KAMINO_MAIN_MARKET}/loans?wallet=${walletAddress}&status=all`
+    );
+    const items = Array.isArray(data) ? data : data.loans ?? data.obligations ?? [];
+    if (items.length === 0) return null;
+
+    return items.map(p => ({
+      protocol: "Kamino",
+      wallet: walletAddress,
+      ltv: p.loanToValue ?? p.ltv ?? "N/A",
+      borrowed: p.totalBorrowedAmountUsd ?? p.debtValue ?? "N/A",
+      collateral: p.totalCollateralAmountUsd ?? p.collateralValue ?? "N/A",
+      token: p.liquidityToken ?? p.collateralToken ?? "SOL",
+      healthFactor: p.healthFactor ?? p.health ?? "N/A",
+      liquidationThreshold: p.liquidationThreshold ?? "N/A",
+    }));
+  } catch (err) {
+    console.error("Wallet position fetch failed:", err.message);
+    return null;
+  }
+}

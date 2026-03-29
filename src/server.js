@@ -2,8 +2,8 @@ import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
-import { fetchKaminoRisk, fetchMarketMetrics, fetchSOLPrice } from "./monitor.js";
-import { analyzeRisk } from "./analyzer.js";
+import { fetchKaminoRisk, fetchMarketMetrics, fetchSOLPrice, fetchWalletPositions } from "./monitor.js";
+import { analyzeRisk, analyzeWalletRisk } from "./analyzer.js";
 
 dotenv.config();
 
@@ -28,6 +28,34 @@ app.get("/api/analyze", async (req, res) => {
       solPrice,
       metrics,
       liquidations,
+      analysis,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get("/api/wallet/:address", async (req, res) => {
+  try {
+    const { address } = req.params;
+
+    if (!address || address.length < 32) {
+      return res.status(400).json({ success: false, error: "Invalid wallet address" });
+    }
+
+    const [solPrice, positions] = await Promise.all([
+      fetchSOLPrice(),
+      fetchWalletPositions(address),
+    ]);
+
+    const analysis = await analyzeWalletRisk(address, positions, solPrice);
+
+    res.json({
+      success: true,
+      wallet: address,
+      solPrice,
+      positions,
       analysis,
       timestamp: new Date().toISOString(),
     });
